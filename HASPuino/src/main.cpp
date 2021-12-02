@@ -5,10 +5,24 @@
 #include <WiFiManager.h>
 #include <PubSubClient.h>
 
+#include <ArduinoJson.h>
+DynamicJsonDocument doc(128);
+char json[128];
+
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 const char *mqtt_server = "api.easyprint.abbgymnasiet.se";
+
+#include <SoftwareSerial.h>
+#define TX 15
+#define RX 13
+#define pin1 12
+
+SoftwareSerial MaixPY = SoftwareSerial(RX, TX);
+
+bool lock;
+bool grind;
 
 void reconnect()
 {
@@ -48,24 +62,61 @@ void reconnect()
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
-  String topicStr;
-  String payloadStr;
 
-  for (int i = 0; topic[i]; i++)
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("]: ");
+
+  for (unsigned int i = 0; i < length; i++)
   {
-    topicStr += topic[i];
+    Serial.print((char)payload[i]);
   }
+  Serial.println();
 
-  for (int i = 0; i < length; i++)
+  DynamicJsonDocument doc(1024);
+  char json[256];
+
+  if (String(topic) == String("get_state"))
   {
-    payloadStr += (char)payload[i];
-  }
+    doc["grind"] = grind;
+    doc["lock"] = lock;
 
+    serializeJson(doc, json, 256);
+
+    client.publish("state", json);
+  }
+}
+
+void lockGate()
+{
+  change_servo(false);
+  doc.clear();
+  doc["state"] = false;
+  serializeJson(doc, json, 128);
+
+  client.publish("le_lock", json);
+}
+void unlockGate()
+{
+  change_servo(true);
+  doc.clear();
+  doc["state"] = true;
+  serializeJson(doc, json, 128);
+
+  client.publish("le_lock", json);
+}
+
+void change_servo(bool state)
+{
+
+  // servo.wrire(23143);
 }
 
 void setup()
 {
   Serial.begin(9600);
+
+  pinMode(pin1, INPUT_PULLUP);
 
   WiFiManager wifiManager;
 
@@ -76,10 +127,14 @@ void setup()
     ESP.reset();
     delay(5000);
   }
-  Serial.println("connected to" + WiFi.localIP());
+  Serial.println("connected to ");
+  Serial.print(WiFi.localIP());
   client.setServer(mqtt_server, 6969);
   client.setCallback(callback);
 }
+
+bool oldButton;
+bool newButton;
 
 void loop()
 {
@@ -88,5 +143,19 @@ void loop()
     reconnect();
   }
   client.loop();
+
+  newButton = digitalRead(pin1);
+  // Serial.println(newButton);
+  if (newButton != oldButton)
+  {
+    Serial.print("ButtonChange: ");
+    Serial.println(!newButton);
+    oldButton = newButton;
+    doc.clear();
+    doc["state"] = newButton;
+    serializeJson(doc, json, 128);
+
+    client.publish("le_grind", json);
+  }
 }
 // flush input
