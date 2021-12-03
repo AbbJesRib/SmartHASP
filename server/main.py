@@ -3,6 +3,8 @@
 import json
 from typing import List
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocket, WebSocketDisconnect
 import uvicorn
@@ -54,7 +56,7 @@ class ConnectionManager:
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, message: dict):
         for connection in self.active_connections:
             await connection.send_json(message)
 
@@ -93,12 +95,12 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 
-# @app.get("/", response_class=HTMLResponse)
-# def read_root():
-#     return open(f"{webroot}index.html").read()
+webroot = "../Frontend/smart-hasp/dist/"
+@app.get("/SMARTHASP", response_class=HTMLResponse)
+def read_root():
+    return open(f"{webroot}index.html").read()
 
-# webroot = "webview/dist/"
-# app.mount("/", StaticFiles(directory=webroot), name="static")
+app.mount("/SMARTHASP/", StaticFiles(directory=webroot), name="static")
 
 
 @fast_mqtt.on_connect()
@@ -138,7 +140,7 @@ async def on_message(client, topic, payload, qos, properties):
           "lock": True if res["lock"] else False
         }
         print(mess)
-        await manager.broadcast(json.dumps(mess))
+        await manager.broadcast(mess)
     
 
     # unlocked
