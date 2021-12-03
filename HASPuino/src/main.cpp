@@ -4,8 +4,14 @@
 #include <DNSServer.h>
 #include <WiFiManager.h>
 #include <PubSubClient.h>
+#include <Servo.h>
 
 #include <ArduinoJson.h>
+
+#include "main.h"
+
+Servo servo;
+
 DynamicJsonDocument doc(128);
 char json[128];
 
@@ -18,8 +24,9 @@ const char *mqtt_server = "api.easyprint.abbgymnasiet.se";
 #define TX 15
 #define RX 13
 #define pin1 12
+#define servoPin 14
 
-SoftwareSerial MaixPY = SoftwareSerial(RX, TX);
+SoftwareSerial GSM = SoftwareSerial(RX, TX);
 
 bool lock;
 bool grind;
@@ -85,6 +92,12 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     client.publish("state", json);
   }
+  else if (String(topic) == String("unlock")) {
+    unlockGate();
+  }
+  else if (String(topic) == String("lock")) {
+    lockGate();
+  }
 }
 
 void lockGate()
@@ -92,6 +105,7 @@ void lockGate()
   change_servo(false);
   doc.clear();
   doc["state"] = false;
+  lock = false;
   serializeJson(doc, json, 128);
 
   client.publish("le_lock", json);
@@ -101,6 +115,7 @@ void unlockGate()
   change_servo(true);
   doc.clear();
   doc["state"] = true;
+  lock = true;
   serializeJson(doc, json, 128);
 
   client.publish("le_lock", json);
@@ -108,7 +123,11 @@ void unlockGate()
 
 void change_servo(bool state)
 {
-
+  if (state) {
+    servo.write(0);
+  } else {
+    servo.write(90);
+  }
   // servo.wrire(23143);
 }
 
@@ -117,6 +136,7 @@ void setup()
   Serial.begin(9600);
 
   pinMode(pin1, INPUT_PULLUP);
+  servo.attach(servoPin);
 
   WiFiManager wifiManager;
 
@@ -131,6 +151,7 @@ void setup()
   Serial.print(WiFi.localIP());
   client.setServer(mqtt_server, 6969);
   client.setCallback(callback);
+  servo.write(90);
 }
 
 bool oldButton;
@@ -156,6 +177,22 @@ void loop()
     serializeJson(doc, json, 128);
 
     client.publish("le_grind", json);
+  }
+
+    
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    String s = Serial.readStringUntil('\n');
+    s.replace("\r", "");
+    // say what you got:
+    Serial.print("I got: @");
+    Serial.print(s);
+    Serial.println("@");
+    char buf[100];
+    s.toCharArray(buf, 100);
+    client.publish("Serial", buf);
+    servo.write(s.toInt());
+    
   }
 }
 // flush input
