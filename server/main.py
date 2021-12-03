@@ -1,25 +1,28 @@
+#!/usr/bin/python3
 'Main file for getting and relaying mqtt messages'
-import asyncio
 import json
-from threading import Thread
-import threading
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import List
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocket, WebSocketDisconnect
 import uvicorn
-from threading import Thread
-import paho.mqtt.client as mqtt
 from pysondb import db
-from time import process_time, time
+from time import time
+from fastapi_mqtt import FastMQTT, MQQTConfig
+
 
 database = db.getDb("db.json")
 # run with > uvicorn main:app --reload
 
-app = FastAPI()
+app = FastAPI(docs_url="/SMARTHASP/docs", redoc_url=None, openapi_url="/SMARTHASP/openapi.json")
+
+
+mqtt_config = MQQTConfig(host = "api.easyprint.abbgymnasiet.se", port=6969)
+
+fast_mqtt = FastMQTT(
+    config=mqtt_config
+)
+fast_mqtt.init_app(app)
 
 origins = [
     "*"
@@ -59,15 +62,18 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
-@app.get("/logs")
+@app.get("/SMARTHASP/logs")
 def get_logs(n: int = 10):
+    return database.getAll()[-n:]
 
 
-    return [{"msg": "hej", "ts": 16258552254}]
+@app.post("/SMARTHASP/set_lock")
+def set_lock(unlock: bool):
+    fast_mqtt.publish(("un" if unlock else "") + "lock", "")
+    return "Sending " + ("un" if unlock else "") + " to lock"
 
 
-
-@app.websocket("/ws")
+@app.websocket("/SMARTHASP/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
@@ -95,8 +101,8 @@ async def websocket_endpoint(websocket: WebSocket):
 # app.mount("/", StaticFiles(directory=webroot), name="static")
 
 
-
-def on_connect(client, userdata, flags, rc):
+@fast_mqtt.on_connect()
+def on_connect(client, flags, rc, properties):
     print("Connected with result code "+str(rc))
 
     # Subscribing in on_connect() means that if we lose the connection and
@@ -105,12 +111,12 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("le_grind")
     client.subscribe("state")
 
-def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-    res = json.loads(msg.payload.decode())
+@fast_mqtt.on_message()
+async def on_message(client, topic, payload, qos, properties):
+    print(topic+" "+str(payload))
+    res = json.loads(payload.decode())
 
-    if msg.topic == "le_lock":
-        res["state"]
+    if topic == "le_lock":
         database.add({
             "ts": round(time()),
             "event": {
@@ -118,7 +124,7 @@ def on_message(client, userdata, msg):
                 "state": True if res["state"] else False
             }
         })
-    elif msg.topic == "le_grind":
+    elif topic == "le_grind":
         database.add({
             "ts": round(time()),
             "event": {
@@ -126,13 +132,13 @@ def on_message(client, userdata, msg):
                 "state": True if res["state"] else False
             }
         })
-    elif msg.topic == "state":
+    elif topic == "state":
         mess = {
           "grind": True if res["grind"] else False,
           "lock": True if res["lock"] else False
         }
         print(mess)
-        # await manager.broadcast(json.dumps(mess))
+        await manager.broadcast(json.dumps(mess))
     
 
     # unlocked
@@ -142,9 +148,5 @@ def on_message(client, userdata, msg):
 
 
 if __name__ == "__main__":
-    client = mqtt.Client()
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect("localhost", 6969, 60)
-    client.loop_start()
+
     uvicorn.run("main:app", host='0.0.0.0', port=6970, reload=True, debug=False)
