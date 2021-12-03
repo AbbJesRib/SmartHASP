@@ -1,6 +1,6 @@
 <template>
     <div>
-        <VirtualList style="height: 360px; overflow-y: auto;"
+        <virtual-list style="height: 360px; overflow-y: auto;"
         :data-key="'uid'"
         :data-sources="messageLog"
         :data-component="messageComponent"
@@ -9,21 +9,20 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
+
+import message from './messageComponent.vue'
+import Vue from 'vue';
 import VirtualList from 'vue-virtual-scroll-list';
-import * as types from '../types'
 
 export default Vue.extend({
     name: 'logComponent',
-    props: {
-
-    },
     data() {
         return {
-            messageComponent: Object as PropType<types.Message>,
-            messageLog: [],
+            messageComponent: message,
+            messageLog: Array
         }
     },
+    components: {'virtual-list': VirtualList}
 })
 
 </script>

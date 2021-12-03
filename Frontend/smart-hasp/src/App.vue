@@ -1,17 +1,20 @@
 <template>
   <div id="app">
-    <closeButton></closeButton>
+    <close-button></close-button>
+    <log-component></log-component>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import closeButton from './components/closeButton.vue';
+import logComponent from './components/logComponent.vue';
 
 export default Vue.extend({
   name: 'App',
   components: {
     closeButton,
+    logComponent,
   },
 });
 </script>

@@ -1,13 +1,24 @@
 <template>
-  <div>{{message.uid}} - {{ source.text }}</div>
+  <div>{{ index }} - {{ source.message }} - {{ source.time }} {{ source.date }}</div>
 </template>
 
-<script>
+<script lang="ts">
 
-export default {
-  name: "message-component",
+import Vue, { PropType } from 'vue';
+import * as types from '../types'
+
+export default Vue.extend({
+  name: "message",
   props: {
-    message: Object,
+    index: {
+      type: Number
+    },
+    source: {
+      type: Object as PropType<types.Message>,
+      default () {
+        return {}
+      }
+    }
   },
-};
+});
 </script>

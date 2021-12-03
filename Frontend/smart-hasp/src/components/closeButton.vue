@@ -11,11 +11,12 @@
 <script lang="ts">
 
 import Vue from 'vue';
+import messageLog from './logComponent.vue'
 
 export default Vue.extend({
     name: 'closeButton',
     props: {
-        
+
     },
     data: () => ({
         gateOpen: true,
