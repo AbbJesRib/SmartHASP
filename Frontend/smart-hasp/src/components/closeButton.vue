@@ -4,13 +4,15 @@
       v-if="gateUnlocked"
       src="../assets/closeButton.png"
       @click="switchButton()"
-      style="width: 360px"
+      width="360px"
+      :style="{opacity: buttonOpacity}"
     />
     <img
       v-else
       src="../assets/openButton.png"
       @click="switchButton()"
-      style="width: 360px"
+      width="360px"
+      :style="{opacity: buttonOpacity}"
     />
   </div>
 </template>
@@ -28,13 +30,18 @@ export default Vue.extend({
   },
   data: () => ({
     // gateOpen: true,
+    localGateUnlocked: true,
   }),
   methods: {
     sayHello() {
       console.log('Hello world!');
     },
     switchButton() {
-      // this.gateOpen = !this.gateOpen
+        if (this.buttonOpacity == 0.5) return
+        setTimeout(() => {
+            this.localGateUnlocked = this.gateUnlocked
+        }, 3000);
+      this.localGateUnlocked = !this.localGateUnlocked
       axios.post(
         'https://api.easyprint.abbgymnasiet.se/SMARTHASP/set_lock',
         {},
@@ -43,12 +50,21 @@ export default Vue.extend({
     },
   },
   computed: {
+    buttonOpacity() {
+        if (this.localGateUnlocked == this.gateUnlocked) {
+            return 1
+        }
+        return 0.5
+    },
     gateUnlocked() {
-    const data: types.lockEvent = this.websocketdata;
-    if (data.thing === 'lock') {
-      return data.state;
-    }
-    return false;
+        const data: types.lockEvent = this.websocketdata
+      if (data) {
+          if (data.thing == "lock") {
+            this.localGateUnlocked = data.state
+            return data.state;
+          }
+          return false;
+      }
     },
   },
   // watch: {
