@@ -1,35 +1,35 @@
 <template>
   <div>
     <virtual-list
+      class="list"
       style="height: 360px; overflow-y: auto"
       :data-key="'id'"
       :data-sources="messageLog"
       :data-component="messageComponent"
+      :estimate-size="50"
     />
   </div>
 </template>
 
 <script lang='ts'>
-import message from "./messageComponent.vue";
-import Vue, { PropType } from "vue";
-import VirtualList from "vue-virtual-scroll-list";
-import * as types from "../types";
-
-const axios = require("axios");
+import message from './messageComponent.vue';
+import Vue from 'vue';
+import VirtualList from 'vue-virtual-scroll-list';
+import * as types from '../types';
+import axios from 'axios';
 
 export default Vue.extend({
-  name: "logComponent",
+  name: 'logComponent',
   data() {
     return {
       messageComponent: message,
-      messageLog: Array<types.Message>()
-      };
+      messageLog: Array<types.Message>(),
+    };
   },
-  components: { "virtual-list": VirtualList },
+  components: { 'virtual-list': VirtualList },
   async mounted() {
-    const res = await axios.get("https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs");
+    const res = await axios.get('https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs');
     const items: types.fetchMessage[] = res.data;
-    console.log("items", items);
 
     const dates: Date[] = [];
     items.forEach((item) => {
@@ -38,43 +38,75 @@ export default Vue.extend({
       dates.push(date);
     });
 
-    // const messageLog: types.Message[] = []
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
 
     for (let i = 0; i < items.length; i++) {
-      let currentDate = dates[i];
-      let event = items[i].event;
-      let gateMessage: String = "";
+      const currentDate = dates[i];
+      const event = items[i].event;
+      let gateMessage: string = '';
       switch (event.thing) {
-        case "lock": 
+        case 'lock':
           if (event.state) {
-            gateMessage = "Gate unlocked";
+            gateMessage = 'Gate unlocked';
           } else {
-            gateMessage = "Gate locked";
+            gateMessage = 'Gate locked';
           }
           break;
-        case "grind":
+        case 'grind':
           if (event.state) {
-            gateMessage = "Gate opened";
+            gateMessage = 'Gate opened';
           } else {
-            gateMessage = "Gate closed";
+            gateMessage = 'Gate closed';
           }
           break;
         default:
           break;
       }
-      const time = currentDate.getHours()+":"+((currentDate.getMinutes() < 10) === true ? "0" : "")+currentDate.getMinutes();
-      const date = currentDate.getDate()+"/"+(currentDate.getMonth()+1);
+      const time =
+        currentDate.getHours() +
+        ':' +
+        (currentDate.getMinutes() < 10 === true ? '0' : '') +
+        currentDate.getMinutes();
+      const date = currentDate.getDate() + ' ' + months[currentDate.getMonth()];
+
       const logMessage: types.Message = {
         id: items[i].id,
         message: gateMessage,
-        time: time,
-        date: date
-      }
+        time,
+        date,
+      };
       this.messageLog.push(logMessage);
     }
     this.messageLog.reverse();
-    console.log(this.messageLog);
-
   },
 });
 </script>
+
+<style>
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 1em;
+  padding: 1em;
+}
+.list {
+  border: 2px solid steelblue;
+  border-radius: 3px;
+}
+</style>
