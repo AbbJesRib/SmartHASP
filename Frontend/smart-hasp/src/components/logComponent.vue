@@ -1,21 +1,22 @@
 <template>
   <div>
     <virtual-list
+      class="list"
       style="height: 360px; overflow-y: auto"
       :data-key="'id'"
       :data-sources="messageLog"
       :data-component="messageComponent"
+      :estimate-size="50"
     />
   </div>
 </template>
 
 <script lang='ts'>
 import message from './messageComponent.vue';
-import Vue, { PropType } from 'vue';
+import Vue from 'vue';
 import VirtualList from 'vue-virtual-scroll-list';
 import * as types from '../types';
 import axios from 'axios';
-
 
 export default Vue.extend({
   name: 'logComponent',
@@ -27,11 +28,8 @@ export default Vue.extend({
   },
   components: { 'virtual-list': VirtualList },
   async mounted() {
-    const res = await axios.get(
-      'https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs',
-    );
+    const res = await axios.get('https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs');
     const items: types.fetchMessage[] = res.data;
-    console.log('items', items);
 
     const dates: Date[] = [];
     items.forEach((item) => {
@@ -40,7 +38,20 @@ export default Vue.extend({
       dates.push(date);
     });
 
-    // const messageLog: types.Message[] = []
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
 
     for (let i = 0; i < items.length; i++) {
       const currentDate = dates[i];
@@ -69,8 +80,8 @@ export default Vue.extend({
         ':' +
         (currentDate.getMinutes() < 10 === true ? '0' : '') +
         currentDate.getMinutes();
+      const date = currentDate.getDate() + ' ' + months[currentDate.getMonth()];
 
-      const date = currentDate.getDate() + '/' + (currentDate.getMonth() + 1);
       const logMessage: types.Message = {
         id: items[i].id,
         message: gateMessage,
@@ -80,7 +91,22 @@ export default Vue.extend({
       this.messageLog.push(logMessage);
     }
     this.messageLog.reverse();
-    console.log(this.messageLog);
   },
 });
 </script>
+
+<style>
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 1em;
+  padding: 1em;
+}
+.list {
+  border: 2px solid steelblue;
+  border-radius: 3px;
+}
+</style>

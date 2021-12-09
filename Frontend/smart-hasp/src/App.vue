@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <close-button></close-button>
+    <div style="height: 60px"></div>
     <log-component></log-component>
   </div>
 </template>

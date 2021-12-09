@@ -25,9 +25,6 @@ export default Vue.extend({
     gateOpen: true,
   }),
   methods: {
-    sayHello() {
-      console.log('Hello world!');
-    },
     switchButton() {
       this.gateOpen = !this.gateOpen;
       if (this.gateOpen) {
