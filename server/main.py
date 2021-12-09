@@ -98,6 +98,7 @@ async def websocket_endpoint(websocket: WebSocket):
 webroot = "../Frontend/smart-hasp/dist/"
 @app.get("/SMARTHASP", response_class=HTMLResponse)
 def read_root():
+    # print("opening...", f"{webroot}index.html")
     return open(f"{webroot}index.html").read()
 
 app.mount("/SMARTHASP/", StaticFiles(directory=webroot), name="static")
@@ -126,6 +127,10 @@ async def on_message(client, topic, payload, qos, properties):
                 "state": True if res["state"] else False
             }
         })
+        await manager.broadcast({
+            "thing": "lock",
+            "state": True if res["state"] else False
+        })
     elif topic == "le_grind":
         database.add({
             "ts": round(time()),
@@ -134,10 +139,19 @@ async def on_message(client, topic, payload, qos, properties):
                 "state": True if res["state"] else False
             }
         })
+        await manager.broadcast({
+            "thing": "grind",
+            "state": True if res["state"] else False
+        })
     elif topic == "state":
         mess = {
-          "grind": True if res["grind"] else False,
-          "lock": True if res["lock"] else False
+            "thing": "grind",
+            "state": True if res["grind"] else False
+        }
+        await manager.broadcast(mess)
+        mess = {
+            "thing": "lock",
+            "state": True if res["lock"] else False
         }
         print(mess)
         await manager.broadcast(mess)
