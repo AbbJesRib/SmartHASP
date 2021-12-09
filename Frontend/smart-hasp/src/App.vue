@@ -28,16 +28,10 @@ export default Vue.extend({
     this.websocket = new WebSocket('wss://api.easyprint.abbgymnasiet.se/SMARTHASP/ws');
 
     this.websocket.onmessage = this.onMsg;
-
-    this.websocket.onopen = (event) => {
-      console.log(event);
-      console.log('Connected to websocket');
-    };
   },
   methods: {
     onMsg(event: {data: string}) {
       this.websocketdata = JSON.parse(event.data);
-      console.log(this.websocketdata);
     },
   },
 });

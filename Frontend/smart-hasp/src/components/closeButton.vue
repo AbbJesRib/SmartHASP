@@ -35,9 +35,6 @@ export default Vue.extend({
     localGateUnlocked: true,
   }),
   methods: {
-    sayHello() {
-      console.log('Hello world!');
-    },
     switchButton() {
         if (this.buttonOpacity == 0.5) return
         setTimeout(() => {
@@ -69,9 +66,6 @@ export default Vue.extend({
           return false;
     },
   },
-  // watch: {
-  //     websocketdata:
-  // },
 });
 </script>
 
