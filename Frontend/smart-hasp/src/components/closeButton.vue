@@ -44,8 +44,9 @@ export default Vue.extend({
   },
   computed: {
     gateUnlocked() {
-      if (this.websocketdata.thing == "lock") {
-        return this.websocketdata.state;
+        const data: types.lockEvent = this.websocketdata
+      if (data.thing == "lock") {
+        return data.state;
       }
       return false;
     },
