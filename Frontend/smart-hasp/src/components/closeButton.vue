@@ -61,8 +61,8 @@ export default Vue.extend({
     gateUnlocked() {
         const data: types.lockEvent = this.websocketdata
       if (data) {
-          if (data.thing == "lock") {
-            this.localGateUnlocked = data.state
+          if (data.thing === "lock") {
+            this.localGateUnlocked = data.state;
             return data.state;
           }
           return false;
