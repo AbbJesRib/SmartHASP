@@ -10,7 +10,8 @@ export interface fetchMessage {
 }
 
 export interface Message {
-    message: "Gate opened" | "Gate closed" | "Gate unlocked" | "Gate locked",
+    id: Number,
+    message: String,
     time: String,
     date: String
 }

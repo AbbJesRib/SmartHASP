@@ -12,7 +12,6 @@
 <script lang='ts'>
 import message from "./messageComponent.vue";
 import Vue, { PropType } from "vue";
-//import * as axios from 'axios';
 import VirtualList from "vue-virtual-scroll-list";
 import * as types from "../types";
 
@@ -23,8 +22,8 @@ export default Vue.extend({
   data() {
     return {
       messageComponent: message,
-      messageLog: Array,
-    };
+      messageLog: Array<types.Message>()
+      };
   },
   components: { "virtual-list": VirtualList },
   async mounted() {
@@ -33,42 +32,49 @@ export default Vue.extend({
     console.log("items", items);
 
     const dates: Date[] = [];
-    var coolBool = false;
     items.forEach((item) => {
-      coolBool = true;
       const timestamp: number = item.ts;
       const date = new Date(timestamp * 1000);
       dates.push(date);
     });
 
-    console.log(dates);
-
-    const messageLog: types.Message[] = []
+    // const messageLog: types.Message[] = []
 
     for (let i = 0; i < items.length; i++) {
       let currentDate = dates[i];
       let event = items[i].event;
+      let gateMessage: String = "";
       switch (event.thing) {
         case "lock": 
           if (event.state) {
-            const message = "Gate unlocked";
+            gateMessage = "Gate unlocked";
           } else {
-            const message = "Gate locked";
+            gateMessage = "Gate locked";
           }
           break;
         case "grind":
           if (event.state) {
-            const message = "Gate opened";
+            gateMessage = "Gate opened";
           } else {
-            const message = "Gate closed";
+            gateMessage = "Gate closed";
           }
           break;
         default:
           break;
       }
-      const time = currentDate.getHours()+":"+currentDate.getMinutes();
-      const date = currentDate.getDate();
+      const time = currentDate.getHours()+":"+((currentDate.getMinutes() < 10) === true ? "0" : "")+currentDate.getMinutes();
+      const date = currentDate.getDate()+"/"+(currentDate.getMonth()+1);
+      const logMessage: types.Message = {
+        id: items[i].id,
+        message: gateMessage,
+        time: time,
+        date: date
+      }
+      this.messageLog.push(logMessage);
     }
+    this.messageLog.reverse();
+    console.log(this.messageLog);
+
   },
 });
 </script>

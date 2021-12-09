@@ -1,5 +1,5 @@
 <template>
-  <div>{{ index }} - {{ source.message }} - {{ source.time }} {{ source.date }}</div>
+  <div>{{ source.message }} - {{ source.time }} {{ source.date }}</div>
 </template>
 
 <script lang="ts">
