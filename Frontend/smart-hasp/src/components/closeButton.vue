@@ -1,7 +1,7 @@
 <template>
   <div>
     <img
-      v-if="this.gateUnlocked"
+      v-if="gateUnlocked"
       src="../assets/closeButton.png"
       @click="switchButton()"
       style="width: 360px"
