@@ -1,6 +1,6 @@
 export interface lockEvent {
     thing: 'lock' | 'grind';
-    state: Boolean;
+    state: boolean;
 }
 
 export interface fetchMessage {

@@ -2,6 +2,7 @@
   <div>
     <img
       v-if="gateUnlocked"
+      class="selector"
       src="../assets/closeButton.png"
       @click="switchButton()"
       width="360px"
@@ -9,6 +10,7 @@
     />
     <img
       v-else
+      class="selector"
       src="../assets/openButton.png"
       @click="switchButton()"
       width="360px"
