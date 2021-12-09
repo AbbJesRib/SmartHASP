@@ -1,3 +1,3 @@
-module.exports = {
-    publicPath: "./SMARTHASP"
-  };
+// module.exports = {
+//     publicPath: "./SMARTHASP"
+//   };
