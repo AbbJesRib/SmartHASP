@@ -5,20 +5,22 @@
 <script lang="ts">
 
 import Vue, { PropType } from 'vue';
-import * as types from '../types'
+import * as types from '../types';
 
 export default Vue.extend({
-  name: "message",
+  name: 'message',
   props: {
     index: {
-      type: Number
+      type: Number,
     },
     source: {
       type: Object as PropType<types.Message>,
-      default () {
-        return {}
-      }
-    }
+      default() {
+        return {
+
+        };
+      },
+    },
   },
 });
 </script>

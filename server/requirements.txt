@@ -1,4 +1,5 @@
 fastapi
 uvicorn[standard]
 pysondb==1.5.7
-paho-mqtt
+fastapi-mqtt
+
