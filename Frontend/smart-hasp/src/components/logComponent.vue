@@ -20,15 +20,18 @@ import axios from 'axios';
 
 export default Vue.extend({
   name: 'logComponent',
+  props: {
+    websocketdata: Object,
+  },
   data() {
     return {
       messageComponent: message,
       messageLog: Array<types.Message>(),
     };
   },
-  components: { 'virtual-list': VirtualList },
-  async mounted() {
-    const res = await axios.get('https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs');
+  methods: {
+    getLog: async function() {
+      const res = await axios.get('https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs');
     const items: types.fetchMessage[] = res.data;
 
     const dates: Date[] = [];
@@ -60,9 +63,9 @@ export default Vue.extend({
       switch (event.thing) {
         case 'lock':
           if (event.state) {
-            gateMessage = 'Gate unlocked';
+            gateMessage = 'HASP unlocked';
           } else {
-            gateMessage = 'Gate locked';
+            gateMessage = 'HASP locked';
           }
           break;
         case 'grind':
@@ -91,7 +94,17 @@ export default Vue.extend({
       this.messageLog.push(logMessage);
     }
     this.messageLog.reverse();
+    }
   },
+  components: { 'virtual-list': VirtualList },
+  mounted() {
+    this.getLog();
+  },
+  watch: {
+    websocketdata: function(val) {
+      this.getLog();
+    }
+  }
 });
 </script>
 

@@ -2,7 +2,7 @@
   <div id="app">
     <close-button :websocketdata="websocketdata"></close-button>
     <div style="height: 60px"></div>
-    <log-component></log-component>
+    <log-component :websocketdata="websocketdata"></log-component>
   </div>
 </template>
 
