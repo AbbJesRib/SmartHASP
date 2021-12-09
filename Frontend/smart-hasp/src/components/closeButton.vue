@@ -16,13 +16,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import * as types from "../types";
+import Vue from 'vue';
+import * as types from '../types';
 
-import axios from "axios";
+import axios from 'axios';
 
 export default Vue.extend({
-  name: "closeButton",
+  name: 'closeButton',
   props: {
     websocketdata: Object,
   },
@@ -31,14 +31,14 @@ export default Vue.extend({
   }),
   methods: {
     sayHello() {
-      console.log("Hello world!");
+      console.log('Hello world!');
     },
     switchButton() {
       // this.gateOpen = !this.gateOpen
       axios.post(
-        "https://api.easyprint.abbgymnasiet.se/SMARTHASP/set_lock",
+        'https://api.easyprint.abbgymnasiet.se/SMARTHASP/set_lock',
         {},
-        { params: { unlock: !this.gateUnlocked } }
+        { params: { unlock: !this.gateUnlocked } },
       );
     },
   },
@@ -56,7 +56,6 @@ export default Vue.extend({
   // watch: {
   //     websocketdata:
   // },
-  mounted() {},
 });
 </script>
 
