@@ -63,7 +63,7 @@ export default Vue.extend({
           return data.state;
         }
       }
-      return false;
+      return this.localGateUnlocked;
     },
   },
 });
