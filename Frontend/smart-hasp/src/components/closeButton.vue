@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang='ts'>
 import Vue from 'vue';
 import * as types from '../types';
 
@@ -44,11 +44,11 @@ export default Vue.extend({
   },
   computed: {
     gateUnlocked() {
-        const data: types.lockEvent = this.websocketdata;
-        if (data.thing === 'lock') {
-        return data.state;
-      }
-        return false;
+    const data: types.lockEvent = this.websocketdata;
+    if (data.thing === 'lock') {
+      return data.state;
+    }
+    return false;
     },
   },
   // watch: {
@@ -58,4 +58,11 @@ export default Vue.extend({
 </script>
 
 <style scoped>
+.selector {
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
 </style>
