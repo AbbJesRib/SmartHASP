@@ -2,16 +2,12 @@
     <div>
         <img v-if="this.gateOpen" src="../assets/closeButton.png" @click="switchButton" style="width:360px;">
         <img v-else src="../assets/openButton.png" @click="switchButton" style="width:360px;">
-        <v-card>
-
-        </v-card>
     </div>
 </template>
 
 <script lang="ts">
 
 import Vue from 'vue';
-import messageLog from './logComponent.vue'
 
 export default Vue.extend({
     name: 'closeButton',
