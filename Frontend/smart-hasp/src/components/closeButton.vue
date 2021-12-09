@@ -45,10 +45,12 @@ export default Vue.extend({
   computed: {
     gateUnlocked() {
         const data: types.lockEvent = this.websocketdata
-      if (data.thing == "lock") {
-        return data.state;
+      if (data) {
+          if (data.thing == "lock") {
+            return data.state;
+          }
+          return false;
       }
-      return false;
     },
   },
   // watch: {
