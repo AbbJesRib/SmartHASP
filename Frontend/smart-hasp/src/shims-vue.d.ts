@@ -5,5 +5,5 @@ declare module '*.vue' {
 
 declare module 'vue-virtual-scroll-list' {
   import VirtualList from 'vue-virtual-scroll-list';
-  export default VirtualList
+  export default VirtualList;
 }
