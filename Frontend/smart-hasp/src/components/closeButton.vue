@@ -65,8 +65,8 @@ export default Vue.extend({
             this.localGateUnlocked = data.state;
             return data.state;
           }
-          return false;
       }
+          return false;
     },
   },
   // watch: {
