@@ -30,6 +30,7 @@ SoftwareSerial GSM = SoftwareSerial(RX, TX);
 
 bool lock;
 bool grind;
+unsigned long long lastPress = millis();
 
 void reconnect()
 {
@@ -126,7 +127,7 @@ void change_servo(bool state)
   if (state) {
     servo.write(0);
   } else {
-    servo.write(90);
+    servo.write(180);
   }
   // servo.wrire(23143);
 }
@@ -167,7 +168,7 @@ void loop()
 
   newButton = digitalRead(pin1);
   // Serial.println(newButton);
-  if (newButton != oldButton)
+  if (newButton != oldButton && millis() > lastPress + 100)
   {
     Serial.print("ButtonChange: ");
     Serial.println(!newButton);
@@ -177,6 +178,7 @@ void loop()
     serializeJson(doc, json, 128);
 
     client.publish("le_grind", json);
+    lastPress = millis();
   }
 
     
