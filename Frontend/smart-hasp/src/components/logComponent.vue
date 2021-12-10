@@ -93,10 +93,9 @@ export default Vue.extend({
           time,
           date,
         };
-        this.messageLog.push(logMessage);
+        this.messageLog.unshift(logMessage);
       }
-      this.messageLog.reverse();
-    }
+    },
   },
   components: { 'virtual-list': VirtualList },
   mounted() {
