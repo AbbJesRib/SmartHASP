@@ -40,8 +40,8 @@ app.add_middleware(
 
 
 # start with: uvicorn main:app --reload
-
-
+last = {}
+unlocked = True
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -57,6 +57,8 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: dict):
+        global last
+        last[message["thing"]] = message
         for connection in self.active_connections:
             await connection.send_json(message)
 
@@ -71,18 +73,27 @@ def get_logs(n: int = 10):
 
 @app.post("/SMARTHASP/set_lock")
 def set_lock(unlock: bool):
+    global unlocked
+    unlocked = unlock
     fast_mqtt.publish(("un" if unlock else "") + "lock", "")
     return "Sending " + ("un" if unlock else "") + " to lock"
+
+@app.get("/SMARTHASP/lock")
+def get_lock():
+    return unlocked
 
 
 @app.websocket("/SMARTHASP/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
-        await websocket.send_json({
-            "type": "info",
-            "message": "welcome!"
-        })
+        # await websocket.send_json({
+        #     "type": "info",
+        #     "message": "welcome!"
+        # })
+        for _, v in last.items():
+            print(v)
+            await websocket.send_json(v)
         while True:
             data = await websocket.receive_text()
             # await manager.send_personal_message(f"You wrote: {data}", websocket)
