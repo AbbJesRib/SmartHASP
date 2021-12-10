@@ -31,69 +31,71 @@ export default Vue.extend({
   },
   methods: {
     getLog: async function() {
+      this.messageLog = [];
+
       const res = await axios.get('https://api.easyprint.abbgymnasiet.se/SMARTHASP/logs');
-    const items: types.fetchMessage[] = res.data;
+      const items: types.fetchMessage[] = res.data;
 
-    const dates: Date[] = [];
-    items.forEach((item) => {
-      const timestamp: number = item.ts;
-      const date = new Date(timestamp * 1000);
-      dates.push(date);
-    });
+      const dates: Date[] = [];
+      items.forEach((item) => {
+        const timestamp: number = item.ts;
+        const date = new Date(timestamp * 1000);
+        dates.push(date);
+      });
 
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
+      const months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
 
-    for (let i = 0; i < items.length; i++) {
-      const currentDate = dates[i];
-      const event = items[i].event;
-      let gateMessage: string = '';
-      switch (event.thing) {
-        case 'lock':
-          if (event.state) {
-            gateMessage = 'HASP unlocked';
-          } else {
-            gateMessage = 'HASP locked';
-          }
-          break;
-        case 'grind':
-          if (event.state) {
-            gateMessage = 'Gate opened';
-          } else {
-            gateMessage = 'Gate closed';
-          }
-          break;
-        default:
-          break;
+      for (let i = 0; i < items.length; i++) {
+        const currentDate = dates[i];
+        const event = items[i].event;
+        let gateMessage: string = '';
+        switch (event.thing) {
+          case 'lock':
+            if (event.state) {
+              gateMessage = 'HASP unlocked';
+            } else {
+              gateMessage = 'HASP locked';
+            }
+            break;
+          case 'grind':
+            if (event.state) {
+              gateMessage = 'Gate opened';
+            } else {
+              gateMessage = 'Gate closed';
+            }
+            break;
+          default:
+            break;
+        }
+        const time =
+          currentDate.getHours() +
+          ':' +
+          (currentDate.getMinutes() < 10 === true ? '0' : '') +
+          currentDate.getMinutes();
+        const date = currentDate.getDate() + ' ' + months[currentDate.getMonth()];
+
+        const logMessage: types.Message = {
+          id: items[i].id,
+          message: gateMessage,
+          time,
+          date,
+        };
+        this.messageLog.push(logMessage);
       }
-      const time =
-        currentDate.getHours() +
-        ':' +
-        (currentDate.getMinutes() < 10 === true ? '0' : '') +
-        currentDate.getMinutes();
-      const date = currentDate.getDate() + ' ' + months[currentDate.getMonth()];
-
-      const logMessage: types.Message = {
-        id: items[i].id,
-        message: gateMessage,
-        time,
-        date,
-      };
-      this.messageLog.push(logMessage);
-    }
-    this.messageLog.reverse();
+      this.messageLog.reverse();
     }
   },
   components: { 'virtual-list': VirtualList },
